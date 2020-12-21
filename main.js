@@ -8,9 +8,6 @@ const activeTaskRadioBtn = document.querySelector('#active');
 
 inputTask.focus();
 
-let tasksCompleted = [];
-let tasksActive = [];
-
 const store = {
   state: {
     tasks: [],
@@ -44,18 +41,6 @@ const createTaskDeleteButton = (task) => {
   buttonDel.textContent = 'Удалить';
 
   buttonDel.addEventListener('click', () => {
-    if (copmletedTaskRadioBtn.hasAttribute('checked')) {
-      const index = tasksCompleted.findIndex((t) => t.id === task.id);
-      if (index !== -1) {
-        tasksCompleted.splice(index, 1);
-      }
-    } else if (activeTaskRadioBtn.hasAttribute('checked')) {
-      const index = tasksActive.findIndex((t) => t.id === task.id);
-      if (index !== -1) {
-        tasksActive.splice(index, 1);
-      }
-    }
-
     store.tasks = store.tasks.filter((t) => t.id !== task.id);
   });
 
@@ -68,14 +53,6 @@ const createTaskCompleteButton = (task) => {
   buttonComplete.textContent = 'Выполнить';
 
   buttonComplete.addEventListener('click', () => {
-    if (activeTaskRadioBtn.hasAttribute('checked')) {
-      const index = tasksActive.findIndex((t) => t.id === task.id);
-      if (index !== -1) {
-        task.completed = true;
-        tasksActive.splice(index, 1);
-      }
-    }
-
     store.tasks = store.tasks.map((t) => ({
       ...t,
       completed: t.id === task.id ? !t.completed : t.completed,
@@ -118,20 +95,6 @@ const createTaskEditor = (task) => {
   saveButton.addEventListener('click', saveTask);
 
   editButton.addEventListener('click', () => {
-    if (copmletedTaskRadioBtn.hasAttribute('checked')) {
-      const index = tasksCompleted.findIndex((t) => t.id === task.id);
-      if (index !== -1) {
-        task.edit = true;
-        inputEdit.value = task.text;
-      }
-    } else if (activeTaskRadioBtn.hasAttribute('checked')) {
-      const index = tasksActive.findIndex((t) => t.id === task.id);
-      if (index !== -1) {
-        task.edit = true;
-        inputEdit.value = task.text;
-      }
-    }
-
     store.tasks = store.tasks.map((t) => ({
       ...t,
       edit: t.id === task.id,
@@ -154,7 +117,6 @@ const addTaskListener = (e) => {
   }
 
   store.tasks = [...store.tasks, newTask];
-  tasksActive.push(newTask);
 };
 
 deleteAllTasks.addEventListener('click', () => {
@@ -172,8 +134,6 @@ alltaskRadioBtn.addEventListener('click', () => {
 });
 
 activeTaskRadioBtn.addEventListener('click', () => {
-  const activeTask = store.tasks.filter(t => t.completed === false);
-  tasksActive = activeTask;
   activeTaskRadioBtn.setAttribute('checked', true);
   copmletedTaskRadioBtn.removeAttribute('checked');
   alltaskRadioBtn.removeAttribute('checked');
@@ -181,8 +141,6 @@ activeTaskRadioBtn.addEventListener('click', () => {
 });
 
 copmletedTaskRadioBtn.addEventListener('click', () => {
-  const completedTask = store.tasks.filter(t => t.completed === true);
-  tasksCompleted = completedTask;
   copmletedTaskRadioBtn.setAttribute('checked', true);
   activeTaskRadioBtn.removeAttribute('checked');
   alltaskRadioBtn.removeAttribute('checked');
@@ -221,14 +179,18 @@ const renderList = () => {
   ul.innerHTML = '';
 
   if (copmletedTaskRadioBtn.hasAttribute('checked')) {
-    tasksCompleted.forEach((task) => {
-      const taskTemplate = createTaskTemplate(task);
-      ul.append(taskTemplate);
+    store.tasks.forEach((task) => {
+      if (task.completed) {
+        const taskTemplate = createTaskTemplate(task);
+        ul.append(taskTemplate);
+      }
     });
   } else if (activeTaskRadioBtn.hasAttribute('checked')) {
-    tasksActive.forEach((task) => {
-      const taskTemplate = createTaskTemplate(task);
-      ul.append(taskTemplate);
+    store.tasks.forEach((task) => {
+      if (!task.completed) {
+        const taskTemplate = createTaskTemplate(task);
+        ul.append(taskTemplate);
+      }
     });
   } else if (store.tasks.length > 0) {
     store.tasks.forEach((task) => {

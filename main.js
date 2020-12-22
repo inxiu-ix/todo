@@ -8,25 +8,21 @@ const activeTaskRadioBtn = document.querySelector('#active');
 
 inputTask.focus();
 
-const store = {
-  state: {
-    tasks: [],
-  },
-  get tasks() {
-    return this.state.tasks;
-  },
-  set tasks(value) {
-    this.state.tasks = value;
-    renderList();
-    updateLocal();
-  },
-};
+let tasks;
+let tasksCompleted = [];
+let tasksActive = [];
+
+if (!localStorage.tasks) {
+  tasks = [];
+} else {
+  tasks = JSON.parse(localStorage.getItem('tasks'));
+}
 
 const updateLocal = () => {
-  localStorage.setItem('tasks', JSON.stringify(store.tasks));
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 };
 
-const createTaskId = () => `f${(+new Date()).toString(16)}-${store.tasks.length}`;
+const createTaskId = () => `f${(+new Date()).toString(16)}-${tasks.length}`;
 
 const createTask = (text) => ({
   id: createTaskId(),
@@ -41,7 +37,24 @@ const createTaskDeleteButton = (task) => {
   buttonDel.textContent = 'Удалить';
 
   buttonDel.addEventListener('click', () => {
-    store.tasks = store.tasks.filter((t) => t.id !== task.id);
+    if (copmletedTaskRadioBtn.hasAttribute('checked')) {
+      const index = tasksCompleted.findIndex((t) => t.id === task.id);
+      if (index !== -1) {
+        tasksCompleted.splice(index, 1);
+      }
+    } else if (activeTaskRadioBtn.hasAttribute('checked')) {
+      const index = tasksActive.findIndex((t) => t.id === task.id);
+      if (index !== -1) {
+        tasksActive.splice(index, 1);
+      }
+    }
+    const index = tasks.findIndex((t) => t.id === task.id);
+
+    if (index !== -1) {
+      tasks.splice(index, 1);
+    }
+    updateLocal();
+    renderList();
   });
 
   return buttonDel;
@@ -53,10 +66,22 @@ const createTaskCompleteButton = (task) => {
   buttonComplete.textContent = 'Выполнить';
 
   buttonComplete.addEventListener('click', () => {
-    store.tasks = store.tasks.map((t) => ({
-      ...t,
-      completed: t.id === task.id ? !t.completed : t.completed,
-    }));
+    if (activeTaskRadioBtn.hasAttribute('checked')) {
+      const index = tasksActive.findIndex((t) => t.id === task.id);
+      if (index !== -1) {
+        task.completed = true;
+        tasksActive.splice(index, 1);
+      }
+    }
+    const index = tasks.findIndex((t) => t.id === task.id);
+
+    if (index !== -1 && task.completed) {
+      task.completed = false;
+    } else {
+      task.completed = true;
+    }
+    updateLocal();
+    renderList();
   });
 
   return buttonComplete;
@@ -81,24 +106,67 @@ const createTaskEditor = (task) => {
     inputEdit.style.display = 'none';
   }
 
-  const saveTask = (e) => {
-    if ((e.type !== 'click' && e.keyCode !== 13) || !inputEdit.value) return;
+  inputEdit.addEventListener('keydown', (e) => {
+    if (e.type !== 'click' && e.keyCode !== 13) return;
+    inputEdit.style.display = 'none';
+    editButton.style.display = 'inline-block';
+    saveButton.style.display = 'none';
+    const index = tasks.findIndex((t) => t.id === task.id);
 
-    store.tasks = store.tasks.map((t) => ({
-      ...t,
-      text: t.id === task.id ? inputEdit.value : t.text,
-      edit: false,
-    }));
-  };
+    if (index !== -1 && inputEdit.value === '') {
+      task.innerHTML = task.text;
+      task.edit = !task.edit;
+    } else {
+      task.text = inputEdit.value;
+      task.edit = !task.edit;
+    }
+    updateLocal();
+    renderList();
+  });
 
-  inputEdit.addEventListener('keydown', saveTask);
-  saveButton.addEventListener('click', saveTask);
+  saveButton.addEventListener('click', () => {
+    inputEdit.style.display = 'none';
+    editButton.style.display = 'inline-block';
+    saveButton.style.display = 'none';
+    const index = tasks.findIndex((t) => t.id === task.id);
+
+    if (index !== -1 && inputEdit.value === '') {
+      task.innerHTML = task.text;
+      task.edit = !task.edit;
+    } else {
+      task.text = inputEdit.value;
+      task.edit = !task.edit;
+    }
+    updateLocal();
+    renderList();
+  });
 
   editButton.addEventListener('click', () => {
-    store.tasks = store.tasks.map((t) => ({
-      ...t,
-      edit: t.id === task.id,
-    }));
+    inputEdit.style.display = 'inline-block';
+    editButton.style.display = 'none';
+    saveButton.style.display = 'inline-block';
+
+    if (copmletedTaskRadioBtn.hasAttribute('checked')) {
+      const index = tasksCompleted.findIndex((t) => t.id === task.id);
+      if (index !== -1) {
+        task.edit = true;
+        inputEdit.value = task.text;
+      }
+    } else if (activeTaskRadioBtn.hasAttribute('checked')) {
+      const index = tasksActive.findIndex((t) => t.id === task.id);
+      if (index !== -1) {
+        task.edit = true;
+        inputEdit.value = task.text;
+      }
+    }
+    const index = tasks.findIndex((t) => t.id === task.id);
+
+    if (index !== -1) {
+      task.edit = true;
+      inputEdit.value = task.text;
+    }
+
+    renderList();
   });
 
   divEditAndSave.append(editButton);
@@ -116,11 +184,17 @@ const addTaskListener = (e) => {
     return;
   }
 
-  store.tasks = [...store.tasks, newTask];
+  tasks.push(newTask);
+  tasksActive.push(newTask);
+
+  updateLocal();
+  renderList();
 };
 
 deleteAllTasks.addEventListener('click', () => {
-  store.tasks = [];
+  tasks = [];
+  updateLocal();
+  renderList();
 });
 
 addTask.addEventListener('click', addTaskListener);
@@ -134,6 +208,8 @@ alltaskRadioBtn.addEventListener('click', () => {
 });
 
 activeTaskRadioBtn.addEventListener('click', () => {
+  const activeTask = tasks.filter(t => t.completed === false);
+  tasksActive = activeTask;
   activeTaskRadioBtn.setAttribute('checked', true);
   copmletedTaskRadioBtn.removeAttribute('checked');
   alltaskRadioBtn.removeAttribute('checked');
@@ -141,9 +217,12 @@ activeTaskRadioBtn.addEventListener('click', () => {
 });
 
 copmletedTaskRadioBtn.addEventListener('click', () => {
+  const completedTask = tasks.filter(t => t.completed === true);
+  tasksCompleted = completedTask;
   copmletedTaskRadioBtn.setAttribute('checked', true);
   activeTaskRadioBtn.removeAttribute('checked');
   alltaskRadioBtn.removeAttribute('checked');
+  console.log('value >>>', copmletedTaskRadioBtn.hasAttribute('checked'));
   renderList();
 });
 
@@ -179,34 +258,28 @@ const renderList = () => {
   ul.innerHTML = '';
 
   if (copmletedTaskRadioBtn.hasAttribute('checked')) {
-    store.tasks.forEach((task) => {
-      if (task.completed) {
-        const taskTemplate = createTaskTemplate(task);
-        ul.append(taskTemplate);
-      }
+    tasksCompleted.forEach((task) => {
+      console.log('alert!!!');
+      const taskTemplate = createTaskTemplate(task);
+      ul.append(taskTemplate);
     });
   } else if (activeTaskRadioBtn.hasAttribute('checked')) {
-    store.tasks.forEach((task) => {
-      if (!task.completed) {
-        const taskTemplate = createTaskTemplate(task);
-        ul.append(taskTemplate);
-      }
+    tasksActive.forEach((task) => {
+      console.log('alert active');
+      const taskTemplate = createTaskTemplate(task);
+      ul.append(taskTemplate);
     });
-  } else if (store.tasks.length > 0) {
-    store.tasks.forEach((task) => {
+  } else if (tasks.length > 0) {
+    tasks.forEach((task) => {
       const taskTemplate = createTaskTemplate(task);
       ul.append(taskTemplate);
     });
   } else {
-    store.tasks.forEach((task) => {
+    tasks.forEach((task) => {
       const taskTemplate = createTaskTemplate(task);
       ul.append(taskTemplate);
     });
   }
 };
-
-if (!localStorage.tasks) {
-  store.tasks = [];
-} else {
-  store.tasks = JSON.parse(localStorage.getItem('tasks'));
-}
+updateLocal();
+renderList();

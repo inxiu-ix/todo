@@ -2,10 +2,8 @@ const addTask = document.querySelector('#buttonId');
 const inputTask = document.querySelector('#inputId');
 const ul = document.querySelector('.ul');
 const deleteAllTasks = document.querySelector('#buttonAllDel');
-const alltaskRadioBtn = document.querySelector('#all');
 const copmletedTaskRadioBtn = document.querySelector('#completed');
-const activeTaskRadioBtn = document.querySelector('#active');
-
+const sortBtn = document.getElementsByName('tasks');
 inputTask.focus();
 
 const store = {
@@ -20,6 +18,7 @@ const store = {
     renderList();
     updateLocal();
   },
+  currentFilter: 'all',
 };
 
 const updateLocal = () => {
@@ -126,27 +125,6 @@ deleteAllTasks.addEventListener('click', () => {
 addTask.addEventListener('click', addTaskListener);
 inputTask.addEventListener('keydown', addTaskListener);
 
-alltaskRadioBtn.addEventListener('click', () => {
-  alltaskRadioBtn.setAttribute('checked', true);
-  activeTaskRadioBtn.removeAttribute('checked');
-  copmletedTaskRadioBtn.removeAttribute('checked');
-  renderList();
-});
-
-activeTaskRadioBtn.addEventListener('click', () => {
-  activeTaskRadioBtn.setAttribute('checked', true);
-  copmletedTaskRadioBtn.removeAttribute('checked');
-  alltaskRadioBtn.removeAttribute('checked');
-  renderList();
-});
-
-copmletedTaskRadioBtn.addEventListener('click', () => {
-  copmletedTaskRadioBtn.setAttribute('checked', true);
-  activeTaskRadioBtn.removeAttribute('checked');
-  alltaskRadioBtn.removeAttribute('checked');
-  renderList();
-});
-
 const createTaskTemplate = (task) => {
   const li = document.createElement('li');
   const deleteButton = createTaskDeleteButton(task);
@@ -175,29 +153,33 @@ const createTaskTemplate = (task) => {
   return li;
 };
 
+sortBtn.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    store.currentFilter = btn.value;
+    console.log(store.currentFilter);
+    console.log(store);
+    renderList();
+  });
+});
+
 const renderList = () => {
   ul.innerHTML = '';
 
-  if (copmletedTaskRadioBtn.hasAttribute('checked')) {
+  if (store.currentFilter === 'completed') {
     store.tasks.forEach((task) => {
       if (task.completed) {
         const taskTemplate = createTaskTemplate(task);
         ul.append(taskTemplate);
       }
     });
-  } else if (activeTaskRadioBtn.hasAttribute('checked')) {
+  } else if (store.currentFilter === 'active') {
     store.tasks.forEach((task) => {
       if (!task.completed) {
         const taskTemplate = createTaskTemplate(task);
         ul.append(taskTemplate);
       }
     });
-  } else if (store.tasks.length > 0) {
-    store.tasks.forEach((task) => {
-      const taskTemplate = createTaskTemplate(task);
-      ul.append(taskTemplate);
-    });
-  } else {
+  } else if (store.tasks.length > 0 || store.currentFilter === 'all') {
     store.tasks.forEach((task) => {
       const taskTemplate = createTaskTemplate(task);
       ul.append(taskTemplate);

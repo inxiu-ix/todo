@@ -179,7 +179,7 @@ const renderList = () => {
         ul.append(taskTemplate);
       }
     });
-  } else if (store.tasks.length > 0 || store.currentFilter === 'all') {
+  } else {
     store.tasks.forEach((task) => {
       const taskTemplate = createTaskTemplate(task);
       ul.append(taskTemplate);

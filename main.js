@@ -3,7 +3,7 @@ const inputTask = document.querySelector('#inputId');
 const ul = document.querySelector('.ul');
 const deleteAllTasks = document.querySelector('#buttonAllDel');
 const copmletedTaskRadioBtn = document.querySelector('#completed');
-const sortBtn = document.getElementsByName('tasks');
+const sortBtns = document.getElementsByName('tasks');
 inputTask.focus();
 
 const store = {
@@ -18,7 +18,28 @@ const store = {
     renderList();
     updateLocal();
   },
-  currentFilter: 'all',
+  filters: [
+    {
+      slug: 'completed',
+      callback: (task) => task.completed,
+    },
+    {
+      slug: 'active',
+      callback: (task) => !task.completed,
+    },
+  ],
+  currentFilterSlug: 'all',
+  set filterSlug(value) {
+    this.currentFilterSlug = value;
+    renderList();
+  },
+  get filteredTasks() {
+    const currentFilter = this.filters.find((filter) => filter.slug === this.currentFilterSlug);
+
+    if (!currentFilter) return this.tasks;
+
+    return this.tasks.filter(currentFilter.callback);
+  },
 };
 
 const updateLocal = () => {
@@ -153,38 +174,19 @@ const createTaskTemplate = (task) => {
   return li;
 };
 
-sortBtn.forEach((btn) => {
+sortBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
-    store.currentFilter = btn.value;
-    console.log(store.currentFilter);
-    console.log(store);
-    renderList();
+    store.filterSlug = btn.value;
   });
 });
 
 const renderList = () => {
   ul.innerHTML = '';
 
-  if (store.currentFilter === 'completed') {
-    store.tasks.forEach((task) => {
-      if (task.completed) {
-        const taskTemplate = createTaskTemplate(task);
-        ul.append(taskTemplate);
-      }
-    });
-  } else if (store.currentFilter === 'active') {
-    store.tasks.forEach((task) => {
-      if (!task.completed) {
-        const taskTemplate = createTaskTemplate(task);
-        ul.append(taskTemplate);
-      }
-    });
-  } else {
-    store.tasks.forEach((task) => {
-      const taskTemplate = createTaskTemplate(task);
-      ul.append(taskTemplate);
-    });
-  }
+  store.filteredTasks.forEach((task) => {
+    const taskTemplate = createTaskTemplate(task);
+    ul.append(taskTemplate);
+  });
 };
 
 if (!localStorage.tasks) {

@@ -9,6 +9,14 @@ inputTask.focus();
 const store = {
   state: {
     tasks: [],
+    currentFilterSlug: 'all',
+  },
+  get currentFilterSlug() {
+    return this.state.currentFilterSlug;
+  },
+  set currentFilterSlug(value) {
+    this.state.currentFilterSlug = value;
+    renderList();
   },
   get tasks() {
     return this.state.tasks;
@@ -28,11 +36,6 @@ const store = {
       callback: (task) => !task.completed,
     },
   ],
-  currentFilterSlug: 'all',
-  set filterSlug(value) {
-    this.currentFilterSlug = value;
-    renderList();
-  },
   get filteredTasks() {
     const currentFilter = this.filters.find((filter) => filter.slug === this.currentFilterSlug);
 
@@ -176,7 +179,7 @@ const createTaskTemplate = (task) => {
 
 sortBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
-    store.filterSlug = btn.value;
+    store.currentFilterSlug = btn.value;
   });
 });
 

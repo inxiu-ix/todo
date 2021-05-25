@@ -11,7 +11,7 @@ module.exports = {
   entry: './index.js',
   output: {
     filename: '[name].[contenthash].js',
-    path: path.resolve(__dirname, 'docs')
+    path: path.resolve(__dirname, 'dist')
   },
   devServer: {
     port: 4200,

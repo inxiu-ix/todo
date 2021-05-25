@@ -1,0 +1,120 @@
+body {
+  background-image: url(./background-img.jpg);
+  font-family: "Oswald", sans-serif;
+  color: #10057e;
+}
+
+.site-title {
+  text-align: center;
+  font-size: 50px;
+  line-height: 30px;
+  color: #10057e;
+  font-weight: 400;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.site-wrapper {
+  padding: 20px 50px;
+}
+
+.task-item {
+  display: flex;
+  text-align: start;
+  padding: 10px 10px;
+  border-bottom: 2px solid #10057e;;
+  transition: all 1ms;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.task-completed {
+  background-color: rgba(67, 222, 13, 0.2);
+  border: 2px solid green;
+  border-radius: 10px;
+  margin-top: 5px;
+  order: 2;
+}
+
+.button {
+  padding: 5px 10px;
+  text-decoration: none;
+  border: 1px solid #141860;
+  border-radius: 8px;
+  margin-left: 10px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #e3eff4;
+  background: linear-gradient(180deg, #2ca9e4, #034d70);
+  transition: all 0.2ms;
+  font-family: "Oswald", sans-serif;
+
+  &:hover {
+    background: linear-gradient(90deg, #2ca9e4, #034d70);
+  }
+
+}
+
+.container-btn {
+  margin-top: 20px;
+}
+
+
+.add-task-field {
+  text-align: center;
+}
+
+.radio-field {
+  margin-top: 30px;
+  position: relative;
+  text-align: center;
+}
+
+.radio-field label {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.sort-radio {
+  text-align: center;
+  height: 18px;
+  width: 19px;
+}
+
+
+.input-field {
+  background-color: rgba(105, 108, 166, 0.2);
+  border: 1px solid #696ca6;
+  border-radius: 15px;
+  font-family: "Oswald", sans-serif;
+  padding: 10px 15px;
+  color: #10057e;
+
+  &:hover {
+    background-color: rgba(105, 108, 166, 0.5);
+  }
+
+  &:focus {
+    background-color: rgba(105, 108, 166, 0.5);
+  }
+}
+
+.input-add-task {
+  width: 400px;
+  padding: 10px 10px;
+  font-size: 18px;
+  line-height: 12px;
+  font-weight: 400;
+}
+
+.input-edit-task {
+  margin-left: 10px;
+  font-size: 17px;
+  line-height: 25px;
+  padding: 2px 15px;
+}
+

@@ -1,5 +1,4 @@
-import './styles/style.css'
-import './styles/scss.scss'
+import './styles/style.scss'
 
 
 const addTask = document.querySelector('#buttonId');
@@ -74,6 +73,8 @@ const createTaskDeleteButton = (task) => {
   return buttonDel;
 };
 
+
+
 const createTaskCompleteButton = (task) => {
   const buttonComplete = document.createElement('button');
 
@@ -89,8 +90,11 @@ const createTaskCompleteButton = (task) => {
   return buttonComplete;
 };
 
+
 const createTaskEditor = (task) => {
-  const divEditAndSave = document.createElement('div');
+  const btnDel = createTaskDeleteButton(task);
+  const btnComplete = createTaskCompleteButton(task);
+  const editorField = document.createElement('div');
   const inputEdit = document.createElement('input');
   const editButton = document.createElement('button');
   const saveButton = document.createElement('button');
@@ -101,6 +105,8 @@ const createTaskEditor = (task) => {
 
   editButton.className = 'button';
   saveButton.className = 'button';
+  btnComplete.className = 'button';
+  btnDel.className = 'button';
   inputEdit.className = 'input-field';
   inputEdit.classList.add('input-edit-task');
 
@@ -109,8 +115,13 @@ const createTaskEditor = (task) => {
     inputEdit.value = task.text;
     saveButton.style.display = 'inline-block';
     editButton.style.display = 'none';
+    console.log('>>>', btnComplete);
+    btnComplete.style.display = 'none';
+    btnDel.style.display = 'none';
   } else {
     inputEdit.style.display = 'none';
+    btnComplete.style.display = 'inline-block';
+    btnDel.style.display = 'inline-block'
   }
 
   const saveTask = (e) => {
@@ -132,11 +143,12 @@ const createTaskEditor = (task) => {
       edit: t.id === task.id,
     }));
   });
-
-  divEditAndSave.append(editButton);
-  divEditAndSave.append(inputEdit);
-  divEditAndSave.append(saveButton);
-  return divEditAndSave;
+  editorField.append(btnDel);
+  editorField.append(btnComplete);
+  editorField.append(editButton);
+  editorField.append(inputEdit);
+  editorField.append(saveButton);
+  return editorField;
 };
 
 const addTaskListener = (e) => {
@@ -160,13 +172,13 @@ inputTask.addEventListener('keydown', addTaskListener);
 
 const createTaskTemplate = (task) => {
   const li = document.createElement('li');
-  const deleteButton = createTaskDeleteButton(task);
-  const completeButton = createTaskCompleteButton(task);
+  // const deleteButton = createTaskDeleteButton(task);
+  // const completeButton = createTaskCompleteButton(task);
   const taskEditor = createTaskEditor(task);
 
   li.className = 'task-item';
-  completeButton.className = 'button';
-  deleteButton.className = 'button';
+  // btnComplete.className = 'button';
+  // deleteButton.className = 'button';
 
   if (task.completed) {
     li.classList.add('task-completed');
@@ -178,8 +190,8 @@ const createTaskTemplate = (task) => {
     li.textContent = task.text;
   }
 
-  li.append(completeButton);
-  li.append(deleteButton);
+  // li.append(btnComplete);
+  // li.append(deleteButton);
   li.append(taskEditor);
 
   if (copmletedTaskRadioBtn.hasAttribute('checked')) {

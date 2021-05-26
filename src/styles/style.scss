@@ -12,14 +12,16 @@ body {
   font-weight: 400;
 }
 
-ul {
+
+.ul {
+  word-break: break-word;
   display: flex;
   flex-direction: column;
 }
 
-
 .site-wrapper {
   padding: 20px 50px;
+  max-width: 100%;
 }
 
 .task-item {
@@ -52,6 +54,8 @@ ul {
   background: linear-gradient(180deg, #2ca9e4, #034d70);
   transition: all 0.2ms;
   font-family: "Oswald", sans-serif;
+  word-break: normal;
+  height: 36px;
 
   &:hover {
     background: linear-gradient(90deg, #2ca9e4, #034d70);
@@ -116,5 +120,9 @@ ul {
   font-size: 17px;
   line-height: 25px;
   padding: 2px 15px;
+  width: 1200px;
 }
 
+.edit {
+  display: none;
+}
